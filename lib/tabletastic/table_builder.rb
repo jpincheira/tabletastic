@@ -109,12 +109,12 @@ module Tabletastic
         compound_resource.flatten! if prefix.kind_of?(Array)
         case action
         when :show
-          @template.link_to(link_title(action), compound_resource)
+          @template.link_to(content_tag( :span, link_title(action)), compound_resource)
         when :destroy
-          @template.link_to(link_title(action), compound_resource,
+          @template.link_to(content_tag( :span, link_title(action)), compound_resource,
                             :method => :delete, :confirm => confirmation_message)
         else # edit, other resource GET actions
-          @template.link_to(link_title(action),
+          @template.link_to(content_tag( :span, link_title(action)),
                             @template.polymorphic_path(compound_resource, :action => action))
         end
       end
@@ -161,7 +161,7 @@ module Tabletastic
     def content_tag(name, content = nil, options = nil, escape = true, &block)
       @template.content_tag(name, content, options, escape, &block)
     end
-
+    
     def link_title(action)
       I18n.translate(action, :scope => "tabletastic.actions", :default => action.to_s.titleize)
     end
