@@ -115,7 +115,7 @@ module Tabletastic
                             :method => :delete, :confirm => confirmation_message)
         else # edit, other resource GET actions
           @template.link_to(content_tag( :span, link_title(action)),
-                            @template.polymorphic_path(compound_resource, :action => action))
+                            @template.polymorphic_path(compound_resource, :action => action, :remote => true))
         end
       end
       self.cell(action, :heading => "", :cell_html => {:class => html_class}, &block)
