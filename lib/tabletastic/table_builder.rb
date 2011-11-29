@@ -29,7 +29,7 @@ module Tabletastic
       else
         @table_fields = args.empty? ? orm_fields : args.collect {|f| TableField.new(f.to_sym)}
       end
-      action_cells(options[:actions], options[:action_prefix])
+      action_cells(options[:actions], options[:action_prefix], options[:non_remote])
       ["\n", head, "\n", body, "\n"].join("").html_safe
     end
 
@@ -92,17 +92,21 @@ module Tabletastic
     end
 
     # Used internally to build up cells for common CRUD actions
-    def action_cells(actions, prefix = nil)
+    def action_cells(actions, prefix = nil, non_remote=nil)
       return if actions.blank?
       actions = [actions] if !actions.respond_to?(:each)
       actions = [:show, :edit, :destroy] if actions == [:all]
       actions.each do |action|
-        action_link(action.to_sym, prefix)
+        if non_remote
+          action_link(action.to_sym, prefix, !non_remote.include?(action.to_sym))
+        else
+          action_link(action.to_sym, prefix)
+        end
       end
     end
 
     # Dynamically builds links for the action
-    def action_link(action, prefix)
+    def action_link(action, prefix, remote=true)
       html_class = "actions #{action.to_s}_link"
       block = lambda do |resource|
         compound_resource = [prefix, resource].compact
@@ -115,7 +119,7 @@ module Tabletastic
                             :method => :delete, :confirm => confirmation_message)
         else # edit, other resource GET actions
           @template.link_to(content_tag( :span, link_title(action)),
-                            @template.polymorphic_path(compound_resource, :action => action), :remote => true)
+                            @template.polymorphic_path(compound_resource, :action => action), :remote => remote)
         end
       end
       self.cell(action, :heading => "", :cell_html => {:class => html_class}, &block)
